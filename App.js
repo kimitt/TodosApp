@@ -1,7 +1,8 @@
 import React,  { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import { theme } from './Colors';
+import { Fontisto } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = "@toDos";
@@ -36,6 +37,21 @@ export default function App() {
     await saveToDos(newToDos);
     setText("");
   }
+  const deleteToDo = (key) => {
+    Alert.alert("Delete", "정말 삭제하시겠습니까?", [
+      { text: "취소" },
+      {
+        text: "네, 삭제!!",
+        style: "destructive",
+        onPress: () => {
+          const newToDos = { ...toDos };
+          delete newToDos[key];
+          setToDos(newToDos);
+          saveToDos(newToDos);
+        },
+      },
+    ]);
+  };
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -67,7 +83,10 @@ export default function App() {
         {Object.keys(toDos).map((key) => 
           toDos[key].working === working ? (
           <View style={styles.toDo} key={key}>
-            <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              <TouchableOpacity onPress={() => deleteToDo(key)}>
+                <Fontisto name="trash" size={18} color="white" />
+              </TouchableOpacity>
           </View>
           ) : null
         )}
@@ -105,10 +124,13 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+
   },
   toDoText: {
     color: "white",
     fontSize: 15,
-
   },
 });
